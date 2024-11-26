@@ -1,0 +1,3 @@
+/Users/sergei/Desktop/science/sdf_render/build/CMakeFiles/engine.dir
+/Users/sergei/Desktop/science/sdf_render/build/CMakeFiles/edit_cache.dir
+/Users/sergei/Desktop/science/sdf_render/build/CMakeFiles/rebuild_cache.dir
