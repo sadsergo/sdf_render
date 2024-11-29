@@ -104,7 +104,7 @@ main()
                     data[(int)((y + 1) * (float)HEIGHT / 2.f) * WIDTH + (int)((x + AP) * (float)WIDTH / 2.f)] = color;
                 }
                 
-                t += dist;
+                t += dist + EPS;
                 iter++;
             }
         }
