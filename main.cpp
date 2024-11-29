@@ -63,6 +63,7 @@ main()
     const uint32_t MAX_ITER = 100;
     const float EPS = 1e-2;
     const float AP = (float)WIDTH / HEIGHT;
+    float h = 0.001;
 
     uint32_t data[WIDTH * HEIGHT] = {};
 
@@ -82,13 +83,25 @@ main()
             while (dist > EPS && iter < MAX_ITER)
             {
                 float3 Point = ray_origin + t * ray_dir;
-                // dist = std::abs(sphere_sdf(Point, float3(0, 0, -100), 50));
-                dist = std::abs(tetrahedron_sdf(v0, v1, v2, v3, Point));
+                dist = std::abs(sphere_sdf(Point, float3(0, 0, -100), 50));
+                // dist = std::abs(tetrahedron_sdf(v0, v1, v2, v3, Point));
                 // std::cout << dist << std::endl;
+
                 if (dist < EPS)
                 {
-                    data[(int)((y + 1) * (float)HEIGHT / 2.f) * WIDTH + (int)((x + AP) * (float)WIDTH / 2.f)] = 0xffffff;
-                    break;
+                    float3 normal = LiteMath::normalize(float3 { 
+                        (sphere_sdf(Point, float3(0, 0, -100) + float3(h, 0, 0), 50) - 
+                        sphere_sdf(Point, float3(0, 0, -100) + float3(-h, 0, 0), 50)) / (2 * h),
+                        (sphere_sdf(Point, float3(0, 0, -100) + float3(0, h, 0), 50) - 
+                        sphere_sdf(Point, float3(0, 0, -100) + float3(0, -h, 0), 50)) / (2 * h),
+                        (sphere_sdf(Point, float3(0, 0, -100) + float3(0, 0, h), 50) - 
+                        sphere_sdf(Point, float3(0, 0, -100) + float3(0, 0, -h), 50)) / (2 * h)
+                    });
+
+                    float3 color_vec = LiteMath::clamp(float3 {255 * LiteMath::max(0.1f, LiteMath::dot(normal, float3 {10, 10, 10}))}, 0.f, 255.f);
+                    uint32_t color =  (char)color_vec.x << 16 | (char)color_vec.y << 8 | (char)color_vec.z;
+                    
+                    data[(int)((y + 1) * (float)HEIGHT / 2.f) * WIDTH + (int)((x + AP) * (float)WIDTH / 2.f)] = color;
                 }
                 
                 t += dist;
