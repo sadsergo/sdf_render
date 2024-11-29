@@ -98,8 +98,8 @@ main()
                         sphere_sdf(Point, float3(0, 0, -100) + float3(0, 0, -h), 50)) / (2 * h)
                     });
 
-                    float3 color_vec = LiteMath::clamp(float3 {255 * LiteMath::max(0.1f, LiteMath::dot(normal, float3 {10, 10, 10}))}, 0.f, 255.f);
-                    uint32_t color =  (char)color_vec.x << 16 | (char)color_vec.y << 8 | (char)color_vec.z;
+                    float3 color_vec = 255 * LiteMath::clamp(float3 {LiteMath::max(0.1f, LiteMath::dot(normal, float3 {10, 10, 10}))}, 0.f, 1.f);
+                    uint32_t color =  (uint8_t)color_vec.x << 16 | (uint8_t)color_vec.y << 8 | (uint8_t)color_vec.z;
                     
                     data[(int)((y + 1) * (float)HEIGHT / 2.f) * WIDTH + (int)((x + AP) * (float)WIDTH / 2.f)] = color;
                 }
