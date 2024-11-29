@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <memory>
 
 #include "bitmap.hpp"
 #include "sdf_structs/sdf_structs.hpp"
@@ -22,9 +23,10 @@ main()
     objects.push_back(obj1);
     objects.push_back(obj2);
 
-    Renderer renderer {WIDTH, HEIGHT};
-    renderer.load_objects(objects);
-    renderer.render(data);
+    auto pImpl = std::make_shared<Renderer> ();
+    pImpl->CommitDeviceData();
+    pImpl->load_objects(objects);
+    pImpl->render(WIDTH, HEIGHT, data);
 
     std::string name = "output.bmp";
     SaveBMP(name.c_str(), data.data(), WIDTH, HEIGHT);

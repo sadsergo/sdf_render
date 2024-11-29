@@ -49,7 +49,7 @@ Renderer::intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo 
 }
 
 void 
-Renderer::render(std::vector<uint32_t> &data) const
+Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) const
 {
     const float AP = (float)width / height;
 
