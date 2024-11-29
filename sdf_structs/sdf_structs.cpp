@@ -9,7 +9,7 @@ SphereSDF::get_distance(const float3 &p) const
 float3
 SphereSDF::get_normal(const float3 &P) const
 {
-    float h = 0.01;
+    float h = 0.001;
 
     return LiteMath::normalize(float3{
         (get_distance(P + float3(h, 0, 0)) -

@@ -1,7 +1,9 @@
 #include <iostream>
 #include <LiteMath.h>
+#include <vector>
 
 #include "bitmap.hpp"
+#include "sdf_structs/sdf_structs.hpp"
 
 using LiteMath::float3;
 using LiteMath::float2;
@@ -11,8 +13,6 @@ sphere_sdf(float3 P, float3 P0, float R)
 {
     return LiteMath::length(P - P0) - R;
 }
-
-
 
 int
 main()
@@ -24,7 +24,9 @@ main()
 
     uint32_t data[WIDTH * HEIGHT] = {};
 
-    
+    std::vector<AbstractSDF*> objects;
+    SphereSDF* obj = new SphereSDF (float3{0, 0, -100}, 50); 
+    objects.push_back(obj);
 
     for (float y = -1; y <= 1; y += 2.f / HEIGHT)
     {
@@ -40,19 +42,12 @@ main()
             while (dist > EPS && iter < MAX_ITER)
             {
                 float3 Point = ray_origin + t * ray_dir;
-                dist = std::abs(sphere_sdf(Point, float3(0, 0, -100), 50));
+                dist = std::abs(objects[0]->get_distance(Point));
                 // std::cout << dist << std::endl;
 
                 if (dist < EPS)
                 {
-                    float3 normal = LiteMath::normalize(float3 { 
-                        (sphere_sdf(Point, float3(0, 0, -100) + float3(h, 0, 0), 50) - 
-                        sphere_sdf(Point, float3(0, 0, -100) + float3(-h, 0, 0), 50)) / (2 * h),
-                        (sphere_sdf(Point, float3(0, 0, -100) + float3(0, h, 0), 50) - 
-                        sphere_sdf(Point, float3(0, 0, -100) + float3(0, -h, 0), 50)) / (2 * h),
-                        (sphere_sdf(Point, float3(0, 0, -100) + float3(0, 0, h), 50) - 
-                        sphere_sdf(Point, float3(0, 0, -100) + float3(0, 0, -h), 50)) / (2 * h)
-                    });
+                    float3 normal = objects[0]->get_normal(Point);
 
                     float3 color_vec = 255 * LiteMath::clamp(float3 {LiteMath::max(0.1f, LiteMath::dot(normal, float3 {10, 10, 10}))}, 0.f, 1.f);
                     uint32_t color =  (uint8_t)color_vec.x << 16 | (uint8_t)color_vec.y << 8 | (uint8_t)color_vec.z;
