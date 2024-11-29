@@ -9,5 +9,7 @@ include_directories(external/LiteMath)
 add_executable(engine 
                main.cpp
                bitmap.cpp
+               render/render.cpp
+               sdf_structs/sdf_structs.cpp
                external/LiteMath/Image2d.cpp
 )

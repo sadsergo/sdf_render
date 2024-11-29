@@ -9,52 +9,10 @@ using LiteMath::float2;
 float 
 sphere_sdf(float3 P, float3 P0, float R)
 {
-    return R - LiteMath::length(P - P0);
+    return LiteMath::length(P - P0) - R;
 }
 
-float tetrahedron_sdf(float3 v0, float3 v1, float3 v2, float3 v3, float3 p)
-{       
-    return LiteMath::max(
-        LiteMath::max(
-                LiteMath::dot(p, LiteMath::normalize(v0)),
-                LiteMath::dot(p, LiteMath::normalize(v1))
-        ),
-        LiteMath::max(
-                LiteMath::dot(p, LiteMath::normalize(v2)),
-                LiteMath::dot(p, LiteMath::normalize(v3))
-        )
-    );
-}
 
-float sierpinski_triangle_sdf(float3 v0, float3 v1, float3 v2, float3 v3, float3 p, float max_iter)
-{
-    for (int i = 0; i < max_iter; ++i)
-    {
-        p = LiteMath::abs(p);
-
-        if (p.x + p.y > 1.0)
-        {
-            p.x -= 1;
-            p.y -= 1;
-        }
-        
-        if (p.y + p.z > 1.0)
-        {
-            p.y -= 1;
-            p.z -= 1;
-        }
-
-        if (p.z + p.x > 1)
-        {
-            p.z -= 1;
-            p.x -= 1;
-        }
-
-        p *= 2.0;
-    }
-
-    return tetrahedron_sdf(v0, v1, v2, v3, p);
-}
 
 int
 main()
@@ -63,11 +21,10 @@ main()
     const uint32_t MAX_ITER = 100;
     const float EPS = 1e-2;
     const float AP = (float)WIDTH / HEIGHT;
-    float h = 0.001;
 
     uint32_t data[WIDTH * HEIGHT] = {};
 
-    float3 v0 {10, 10, -40}, v1 {-10, -10, -40}, v2 {-10, 10, -60}, v3 {10, -10, -60};
+    
 
     for (float y = -1; y <= 1; y += 2.f / HEIGHT)
     {
@@ -84,7 +41,6 @@ main()
             {
                 float3 Point = ray_origin + t * ray_dir;
                 dist = std::abs(sphere_sdf(Point, float3(0, 0, -100), 50));
-                // dist = std::abs(tetrahedron_sdf(v0, v1, v2, v3, Point));
                 // std::cout << dist << std::endl;
 
                 if (dist < EPS)
