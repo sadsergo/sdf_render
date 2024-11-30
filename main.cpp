@@ -15,7 +15,7 @@ main()
     const uint32_t WIDTH = 500, HEIGHT = 500;
     
     Settings settings {};
-    settings.spp = 3;
+    settings.spp = 1;
     
     std::vector<uint32_t> data(WIDTH * HEIGHT, 0);
 

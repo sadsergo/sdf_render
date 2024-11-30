@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <random>
-#include <iostream>
 
 void 
 Renderer::load_objects(const std::vector<AbstractSDF*> &objects)
@@ -54,7 +53,7 @@ void
 Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) const
 {
     const float AR = (float)width / height;
-    std::cout << settings.spp << std::endl;
+
     for (float y = -1; y <= 1; y += 2.f / height)
     {
         for (float x = -AR; x <= AR; x += 2.f * AR / width)
