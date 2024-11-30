@@ -13,17 +13,20 @@ int
 main()
 {
     const uint32_t WIDTH = 500, HEIGHT = 500;
-
+    
+    Settings settings {};
+    settings.spp = 3;
+    
     std::vector<uint32_t> data(WIDTH * HEIGHT, 0);
 
     std::vector<AbstractSDF*> objects;
     
     SphereSDF* obj1 = new SphereSDF (float3{0, 0, -100}, 50);
-    SphereSDF* obj2 = new SphereSDF(float3{0, 50, -100}, 30);
+    SphereSDF* obj2 = new SphereSDF(float3{0, 0, -70}, 30);
     objects.push_back(obj1);
     objects.push_back(obj2);
 
-    auto pImpl = std::make_shared<Renderer> ();
+    auto pImpl = std::make_shared<Renderer> (settings);
     pImpl->CommitDeviceData();
     pImpl->load_objects(objects);
     pImpl->render(WIDTH, HEIGHT, data);
