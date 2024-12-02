@@ -6,8 +6,9 @@
 #include "sdf_structs/sdf_structs.hpp"
 #include "render/render.hpp"
 
-using LiteMath::float3;
-using LiteMath::float2;
+#include "render/render_settings.hpp"
+
+using namespace LiteMath;
 
 int
 main()
@@ -15,20 +16,35 @@ main()
     const uint32_t WIDTH = 500, HEIGHT = 500;
     
     Settings settings {};
-    settings.spp = 1;
+    settings.spp = 4;
+
+    Camera camera;
+    camera.position = float3(-100, 2, -100);
+    camera.target = float3(0, 0, 0);
+    camera.aspect = (float)WIDTH / HEIGHT;
+    camera.fov = M_PI / 4.0;
     
     std::vector<uint32_t> data(WIDTH * HEIGHT, 0);
-
-    std::vector<AbstractSDF*> objects;
     
-    SphereSDF* obj1 = new SphereSDF (float3{0, 0, -100}, 50);
-    SphereSDF* obj2 = new SphereSDF(float3{0, 0, -70}, 30);
-    objects.push_back(obj1);
-    objects.push_back(obj2);
+    SphereSDF obj1 (float3{0, 0, 0}, 1);
+    SphereSDF obj2 (float3{0, 0, 1}, 0.5);
+
+    SierpinskiySDF obj3 (float3{1,1,1}, float3{-1,-1,1}, float3{1,-1,-1}, float3{-1,1,-1}, 4, 2);
 
     auto pImpl = std::make_shared<Renderer> (settings);
+
+    pImpl->camera = camera;
+
+    // pImpl->spheres.push_back(obj1);
+    // pImpl->spheres.push_back(obj2);
+
+    pImpl->fractal_triangles.push_back(obj3);
+    pImpl->objinfos.push_back({SIERPINSKIY_TYPE, 0});
+
+    // pImpl->objinfos.push_back({SPHERE_TYPE, 0});
+    // pImpl->objinfos.push_back({SPHERE_TYPE, 1});
+    
     pImpl->CommitDeviceData();
-    pImpl->load_objects(objects);
     pImpl->render(WIDTH, HEIGHT, data);
 
     std::string name = "output.bmp";

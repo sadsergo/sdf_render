@@ -7,7 +7,16 @@
 struct Settings
 {
     uint32_t spp = 1;
-    float delta_ray = 0.001;
+};
+
+
+struct Camera
+{
+    float3 position;
+    float3 target;
+    
+    float aspect;
+    float fov;
 };
 
 class Renderer
@@ -15,21 +24,19 @@ class Renderer
 public:
     Renderer(const Settings &settings) : settings(settings) {}
 
-    ~Renderer() 
-    {
-        objects.clear();
-    }
+    ~Renderer() {}
 
-    void load_objects(const std::vector<AbstractSDF*> &objects);
-    void intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo &hit) const;
-    void reduce_image(std::vector<uint32_t> &input, std::vector<uint32_t> &output);
+    virtual void intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo &hit) const;
     virtual void render(uint32_t width, uint32_t height, std::vector<uint32_t> &data __attribute__((size("width*height")))) const;
 
     //  Kernel Slicer frontend
     virtual void CommitDeviceData() {}
     virtual void GetExecutionTime(const char* a_funcName, float a_out[4]) {} 
 
-protected:
+    Camera camera;
+
     Settings settings;
-    std::vector<AbstractSDF *> objects;
+    std::vector<SphereSDF> spheres;
+    std::vector<SierpinskiySDF> fractal_triangles;
+    std::vector<ObjInfo> objinfos;
 };
