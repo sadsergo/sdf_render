@@ -19,7 +19,7 @@ main()
     settings.spp = 4;
 
     Camera camera;
-    camera.position = float3(-100, 2, -100);
+    camera.position = float3(0, 0, 5);
     camera.target = float3(0, 0, 0);
     camera.aspect = (float)WIDTH / HEIGHT;
     camera.fov = M_PI / 4.0;
@@ -35,14 +35,14 @@ main()
 
     pImpl->camera = camera;
 
-    // pImpl->spheres.push_back(obj1);
-    // pImpl->spheres.push_back(obj2);
+    pImpl->spheres.push_back(obj1);
+    pImpl->spheres.push_back(obj2);
 
-    pImpl->fractal_triangles.push_back(obj3);
-    pImpl->objinfos.push_back({SIERPINSKIY_TYPE, 0});
+    pImpl->objinfos.push_back({SPHERE_TYPE, 0});
+    pImpl->objinfos.push_back({SPHERE_TYPE, 1});
 
-    // pImpl->objinfos.push_back({SPHERE_TYPE, 0});
-    // pImpl->objinfos.push_back({SPHERE_TYPE, 1});
+    // pImpl->fractal_triangles.push_back(obj3);
+    // pImpl->objinfos.push_back({SIERPINSKIY_TYPE, 0});
     
     pImpl->CommitDeviceData();
     pImpl->render(WIDTH, HEIGHT, data);

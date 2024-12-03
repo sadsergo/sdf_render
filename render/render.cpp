@@ -104,8 +104,7 @@ Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) c
                         normal = fractal_triangles[info.offset].get_normal(ray_origin + hit.t * new_dir); 
                     }
 
-                    color_vec += 255 * LiteMath::clamp(float3{LiteMath::max(0.1f, LiteMath::dot(normal, float3{10, 10, 10}))}, 0.f, 1.f);
-                    color_vec = float3{1, 1, 1} * 255.f;
+                    color_vec += 255 * LiteMath::clamp(float3{LiteMath::max(0.1f, LiteMath::dot(normal, normalize(float3{10, 10, 10})))}, 0.f, 1.f);
                 }
             }
 
