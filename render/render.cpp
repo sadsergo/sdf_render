@@ -11,12 +11,12 @@ Renderer::intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo 
     float t = 0.001, dist = 1e5;
     uint32_t iter = 1;
 
-    const uint32_t MAX_ITER = 500;
-    const float EPS = 1e-3;
+    const uint32_t MAX_ITER = 20;
+    const float EPS = 1e-5;
 
     float3 Point = ray_origin;
     
-    while (!hit.isHit && iter < MAX_ITER && hmax(abs(Point)) < 200.f)
+    while (!hit.isHit && iter < MAX_ITER)
     {
         Point = ray_origin + t * ray_dir;
         float min_dist = 1e5;
@@ -52,9 +52,14 @@ Renderer::intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo 
             hit.objinfo = info;
         }
 
-        t += dist + EPS;
+        t += dist;
         iter++;
     }
+}
+
+void Renderer::lightObjIntersection(const float3 &ray_origin, const float $ray_dir, hitInfo &hit) const
+{
+    
 }
 
 void 
@@ -71,7 +76,7 @@ Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) c
     {
         for (float x = 0; x < width; x++)
         {
-             uint32_t hit_count = 0;
+            uint32_t hit_count = 0;
             float3 color_vec;
             
             for (int sample = 0; sample < settings.spp; ++sample)
@@ -81,12 +86,11 @@ Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) c
                 P = 2 * P - 1;
 
                 LiteMath::float3 ray_origin = camera.position;
-                LiteMath::float3 ray_dir = camera_dir + right * P.x * std::tan(camera.fov / 2) * camera.aspect + up * P.y * std::tan(camera.fov / 2);
+                LiteMath::float3 ray_dir = normalize(camera_dir + right * P.x * std::tan(camera.fov / 2) * camera.aspect + up * P.y * std::tan(camera.fov / 2));
 
-                float3 new_dir = LiteMath::normalize(ray_dir + float3(2 * AR / float(width) * (float)rand() / (float)RAND_MAX, 2 * AR / float(width) * (float)rand() / (float)RAND_MAX, 2 * AR / float(width) * (float)rand() / (float)RAND_MAX));
                 hitInfo hit{};
-                
-                intersection(ray_origin, new_dir, hit);
+
+                intersection(ray_origin, ray_dir, hit);
 
                 if (hit.isHit)
                 {
@@ -97,14 +101,14 @@ Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) c
 
                     if (info.type == SPHERE_TYPE)
                     {
-                        normal = spheres[info.offset].get_normal(ray_origin + hit.t * new_dir); 
+                        normal = spheres[info.offset].get_normal(ray_origin + hit.t * ray_dir); 
                     }
                      else if (info.type == SIERPINSKIY_TYPE)
                     {
-                        normal = fractal_triangles[info.offset].get_normal(ray_origin + hit.t * new_dir); 
+                        normal = fractal_triangles[info.offset].get_normal(ray_origin + hit.t * ray_dir);
                     }
 
-                    color_vec += 255 * LiteMath::clamp(float3{LiteMath::max(0.1f, LiteMath::dot(normal, normalize(float3{10, 10, 10})))}, 0.f, 1.f);
+                    color_vec += 255 * LiteMath::clamp(float3{LiteMath::max(0.1f, LiteMath::dot(normal, lights[0].position))}, 0.f, 1.f);
                 }
             }
 
