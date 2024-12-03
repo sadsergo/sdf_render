@@ -29,16 +29,20 @@ Renderer::intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo 
                 SphereSDF sphere = spheres[objinfos[i].offset];
                 dist = std::abs(sphere.get_distance(Point));
             }
-            else if (objinfos[i].type == SIERPINSKIY_TYPE)
+            else if (objinfos[i].type == ROUNDBOX_TYPE)
             {
-                SierpinskiySDF tr = fractal_triangles[objinfos[i].offset];
-                dist = std::abs(tr.get_distance(Point));
+                RoundBoxSDF round_box = roundboxes[objinfos[i].offset];
+                dist = std::abs(round_box.get_distance(Point));
             }
-            
+            else if (objinfos[i].type == TORUS_TYPE)
+            {
+                TorusSDF torus = toruses[objinfos[i].offset];
+                dist = std::abs(torus.get_distance(Point));
+            }
+
             if (dist < min_dist)
             {
                 min_dist = dist;
-                
                 info = objinfos[i];
             }
         }
@@ -50,16 +54,24 @@ Renderer::intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo 
             hit.isHit = true;
             hit.t = t;
             hit.objinfo = info;
+
+            if (info.type == SPHERE_TYPE)
+            {
+                hit.normal = spheres[info.offset].get_normal(ray_origin + hit.t * ray_dir);
+            }
+            else if (info.type == ROUNDBOX_TYPE)
+            {
+                hit.normal = roundboxes[info.offset].get_normal(ray_origin + hit.t * ray_dir);
+            }
+            else if (info.type == TORUS_TYPE)
+            {
+                hit.normal = toruses[info.offset].get_normal(ray_origin + hit.t * ray_dir);
+            }
         }
 
         t += dist;
         iter++;
     }
-}
-
-void Renderer::lightObjIntersection(const float3 &ray_origin, const float $ray_dir, hitInfo &hit) const
-{
-    
 }
 
 void 
@@ -96,27 +108,22 @@ Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) c
                 {
                     for (int i = 0; i < lights.size(); ++i)
                     {
-                        hitInfo lightIntersect {};
-                        intersection(ray_origin + hit.t * ray_dir, normalize(lights[i].position - (ray_origin + hit.t * ray_dir)), lightIntersect);
-
-                        if (!lightIntersect.isHit)
-                        {
-                            hit_count++;
-                        }
+                        hit_count++;
 
                         ObjInfo info = hit.objinfo;
-                        float3 normal(0, 0, 0);
+                        float3 normal = hit.normal;
 
-                        if (!lightIntersect.isHit && info.type == SPHERE_TYPE)
+                        hitInfo lightIntersect{};
+                        intersection(ray_origin + hit.t * ray_dir, normalize(lights[i].position - (ray_origin + hit.t * ray_dir)), lightIntersect);
+
+                        float dif = 1;
+
+                        if (lightIntersect.isHit)
                         {
-                            normal = spheres[info.offset].get_normal(ray_origin + hit.t * ray_dir);
-                        }
-                        else if (!lightIntersect.isHit && info.type == SIERPINSKIY_TYPE)
-                        {
-                            normal = fractal_triangles[info.offset].get_normal(ray_origin + hit.t * ray_dir);
+                            dif = 0.4;
                         }
 
-                        color_vec += 255 * LiteMath::clamp(float3{LiteMath::max(0.1f, LiteMath::dot(normal, normalize(lights[0].position)))}, 0.f, 1.f);
+                        color_vec += 255 * max(0.1f, dif * clamp(dot(normal, normalize(lights[0].position)), 0.f, 1.f));
                     }
                 }
             }

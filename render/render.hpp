@@ -34,7 +34,6 @@ public:
     ~Renderer() {}
 
     virtual void intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo &hit) const;
-    virtual void lightObjIntersection(const float3 &ray_origin, const float $ray_dir, hitInfo &hit) const;
     virtual void render(uint32_t width, uint32_t height, std::vector<uint32_t> &data __attribute__((size("width*height")))) const;
 
     //  Kernel Slicer frontend
@@ -46,7 +45,8 @@ public:
     Settings settings;
 
     std::vector<SphereSDF> spheres;
-    std::vector<SierpinskiySDF> fractal_triangles;
+    std::vector<RoundBoxSDF> roundboxes;
+    std::vector<TorusSDF> toruses;
     
     std::vector<ObjInfo> objinfos;
 
