@@ -16,7 +16,7 @@ main()
     const uint32_t WIDTH = 500, HEIGHT = 500;
     
     Settings settings {};
-    settings.spp = 6;
+    settings.spp = 1;
 
     Camera camera;
     camera.position = float3(5, 0, 5);

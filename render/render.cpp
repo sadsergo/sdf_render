@@ -11,8 +11,8 @@ Renderer::intersection(const float3 &ray_origin, const float3 &ray_dir, hitInfo 
     float t = 0.001, dist = 1e5;
     uint32_t iter = 1;
 
-    const uint32_t MAX_ITER = 20;
-    const float EPS = 1e-5;
+    const uint32_t MAX_ITER = 200;
+    const float EPS = 1e-4;
 
     float3 Point = ray_origin;
     
@@ -94,21 +94,30 @@ Renderer::render(uint32_t width, uint32_t height, std::vector<uint32_t> &data) c
 
                 if (hit.isHit)
                 {
-                    hit_count++;
-
-                    ObjInfo info = hit.objinfo;
-                    float3 normal (0, 0, 0);
-
-                    if (info.type == SPHERE_TYPE)
+                    for (int i = 0; i < lights.size(); ++i)
                     {
-                        normal = spheres[info.offset].get_normal(ray_origin + hit.t * ray_dir); 
-                    }
-                     else if (info.type == SIERPINSKIY_TYPE)
-                    {
-                        normal = fractal_triangles[info.offset].get_normal(ray_origin + hit.t * ray_dir);
-                    }
+                        hitInfo lightIntersect {};
+                        intersection(ray_origin + hit.t * ray_dir, normalize(lights[i].position - (ray_origin + hit.t * ray_dir)), lightIntersect);
 
-                    color_vec += 255 * LiteMath::clamp(float3{LiteMath::max(0.1f, LiteMath::dot(normal, lights[0].position))}, 0.f, 1.f);
+                        if (!lightIntersect.isHit)
+                        {
+                            hit_count++;
+                        }
+
+                        ObjInfo info = hit.objinfo;
+                        float3 normal(0, 0, 0);
+
+                        if (!lightIntersect.isHit && info.type == SPHERE_TYPE)
+                        {
+                            normal = spheres[info.offset].get_normal(ray_origin + hit.t * ray_dir);
+                        }
+                        else if (!lightIntersect.isHit && info.type == SIERPINSKIY_TYPE)
+                        {
+                            normal = fractal_triangles[info.offset].get_normal(ray_origin + hit.t * ray_dir);
+                        }
+
+                        color_vec += 255 * LiteMath::clamp(float3{LiteMath::max(0.1f, LiteMath::dot(normal, normalize(lights[0].position)))}, 0.f, 1.f);
+                    }
                 }
             }
 

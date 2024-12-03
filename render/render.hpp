@@ -21,7 +21,7 @@ struct Camera
 struct Light
 {
 public:
-    Light(float3 pos) : position(normalize(pos)) {}
+    Light(float3 pos) : position(pos) {}
 // private:
     float3 position;
 };
